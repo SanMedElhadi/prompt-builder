@@ -1,9 +1,8 @@
 {
   "name": "prompt-builder",
   "private": true,
-  "version": "1.2.0",
+  "version": "2.0.0",
   "type": "module",
-  "main": "electron/main.cjs",
   "description": "A powerful prompt builder desktop app",
   "author": "Antigravity",
   "scripts": {
@@ -12,8 +11,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "node test/quality-check.js",
-    "electron:dev": "concurrently -k \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
-    "electron:build": "vite build && electron-builder"
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build"
   },
   "dependencies": {
     "mammoth": "^1.11.0",
@@ -23,33 +23,11 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@tauri-apps/api": "^2.9.1",
+    "@tauri-apps/cli": "^2.9.5",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
-    "concurrently": "^9.2.1",
-    "electron": "^39.2.3",
-    "electron-builder": "^26.0.12",
-    "eslint": "^9.39.1",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.4.24",
-    "globals": "^16.5.0",
-    "vite": "^7.2.4",
-    "wait-on": "^9.0.3"
-  },
-  "build": {
-    "appId": "com.antigravity.promptbuilder",
-    "productName": "Prompt Builder",
-    "directories": {
-      "output": "dist-electron"
-    },
-    "files": [
-      "dist/**/*",
-      "electron/**/*",
-      "package.json"
-    ],
-    "win": {
-      "target": "nsis",
-      "icon": "public/logo.png"
-    }
+    "vite": "^7.2.4"
   }
 }

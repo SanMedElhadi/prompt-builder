@@ -27,8 +27,8 @@ function App() {
   // Load topics on mount
   React.useEffect(() => {
     const loadTopics = async () => {
-      if (window.electron) {
-        const saved = await window.electron.getTopics();
+      if (window.__TAURI__) {
+        const saved = await window.__TAURI__.invoke('get_topics');
         if (saved && saved.length > 0) {
           setTopics(saved);
         }
@@ -39,8 +39,8 @@ function App() {
 
   // Save topics on change
   React.useEffect(() => {
-    if (window.electron && topics.length > 0) {
-      window.electron.saveTopics(topics);
+    if (window.__TAURI__ && topics.length > 0) {
+      window.__TAURI__.invoke('save_topics', { topics });
     }
   }, [topics]);
 

@@ -69,11 +69,11 @@ const TemplateLibrary = ({ currentPrompt, onLoad }) => {
 
     useEffect(() => {
         const loadTemplates = async () => {
-            if (window.electron) {
-                const saved = await window.electron.getTemplates();
+            if (window.__TAURI__) {
+                const saved = await window.__TAURI__.invoke('get_templates');
                 if (saved.length === 0) {
                     setTemplates(DEFAULT_TEMPLATES);
-                    await window.electron.saveTemplates(DEFAULT_TEMPLATES);
+                    await window.__TAURI__.invoke('save_templates', { templates: DEFAULT_TEMPLATES });
                 } else {
                     setTemplates(saved);
                 }
@@ -101,8 +101,8 @@ const TemplateLibrary = ({ currentPrompt, onLoad }) => {
         const updated = [...templates, newTemplate];
         setTemplates(updated);
 
-        if (window.electron) {
-            await window.electron.saveTemplates(updated);
+        if (window.__TAURI__) {
+            await window.__TAURI__.invoke('save_templates', { templates: updated });
         } else {
             localStorage.setItem('templates', JSON.stringify(updated));
         }
@@ -122,8 +122,8 @@ const TemplateLibrary = ({ currentPrompt, onLoad }) => {
         const updated = [...templates, ...newDefaults];
         setTemplates(updated);
 
-        if (window.electron) {
-            await window.electron.saveTemplates(updated);
+        if (window.__TAURI__) {
+            await window.__TAURI__.invoke('save_templates', { templates: updated });
         } else {
             localStorage.setItem('templates', JSON.stringify(updated));
         }
@@ -138,8 +138,8 @@ const TemplateLibrary = ({ currentPrompt, onLoad }) => {
         const updated = templates.filter((_, i) => i !== index);
         setTemplates(updated);
 
-        if (window.electron) {
-            await window.electron.saveTemplates(updated);
+        if (window.__TAURI__) {
+            await window.__TAURI__.invoke('save_templates', { templates: updated });
         } else {
             localStorage.setItem('templates', JSON.stringify(updated));
         }
