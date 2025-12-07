@@ -8,6 +8,7 @@ import VariablePanel from './components/VariablePanel';
 import TemplateLibrary from './components/TemplateLibrary';
 import ExamplesPanel from './components/ExamplesPanel';
 import ReasoningPanel from './components/ReasoningPanel';
+import OutputStructurePanel from './components/OutputStructurePanel';
 import './index.css';
 
 function App() {
@@ -19,8 +20,29 @@ function App() {
   const [knowledge, setKnowledge] = useState([]);
   const [examples, setExamples] = useState([]);
   const [reasoning, setReasoning] = useState({ effort: 'medium', strategies: [] }); // Added reasoning state
+  const [outputFormat, setOutputFormat] = useState({ type: 'Free Text', customInstruction: '' }); // Added Output Format state
   const [ragSettings, setRagSettings] = useState({ enabled: true, topK: 3, chunkSize: 500 }); // Added RAG settings
   const [activeTab, setActiveTab] = useState('identity');
+
+  // Load topics on mount
+  React.useEffect(() => {
+    const loadTopics = async () => {
+      if (window.electron) {
+        const saved = await window.electron.getTopics();
+        if (saved && saved.length > 0) {
+          setTopics(saved);
+        }
+      }
+    };
+    loadTopics();
+  }, []);
+
+  // Save topics on change
+  React.useEffect(() => {
+    if (window.electron && topics.length > 0) {
+      window.electron.saveTopics(topics);
+    }
+  }, [topics]);
 
   const handlePromptChange = (e) => {
     const newText = e.target.value;
@@ -88,8 +110,10 @@ function App() {
         return <ExamplesPanel examples={examples} onChange={setExamples} />;
       case 'reasoning': // Added Reasoning tab content
         return <ReasoningPanel reasoning={reasoning} onChange={setReasoning} />;
+      case 'output': // Added Output tab content
+        return <OutputStructurePanel outputFormat={outputFormat} onChange={setOutputFormat} />;
       case 'preview':
-        return <PreviewPane prompt={prompt} variables={variables} role={role} goal={goal} topics={topics} knowledge={knowledge} examples={examples} reasoning={reasoning} ragSettings={ragSettings} />; // Passed RAG props
+        return <PreviewPane prompt={prompt} variables={variables} role={role} goal={goal} topics={topics} knowledge={knowledge} examples={examples} reasoning={reasoning} outputFormat={outputFormat} ragSettings={ragSettings} />; // Passed RAG props
       default:
         return null;
     }
@@ -112,6 +136,7 @@ function App() {
             { id: 'knowledge', label: 'Knowledge' },
             { id: 'examples', label: 'Examples' },
             { id: 'reasoning', label: 'Reasoning' }, // Added Reasoning tab
+            { id: 'output', label: 'Output' }, // Added Output tab
             { id: 'preview', label: 'Preview & Test' }
           ]}
         />

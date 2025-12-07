@@ -28,6 +28,31 @@ ipcMain.handle('save-templates', async (event, templates) => {
   }
 });
 
+const topicsPath = path.join(app.getPath('userData'), 'topics.json');
+
+ipcMain.handle('get-topics', async () => {
+  try {
+    if (fs.existsSync(topicsPath)) {
+      const data = fs.readFileSync(topicsPath, 'utf-8');
+      return JSON.parse(data);
+    }
+    return [];
+  } catch (error) {
+    console.error('Error reading topics:', error);
+    return [];
+  }
+});
+
+ipcMain.handle('save-topics', async (event, topics) => {
+  try {
+    fs.writeFileSync(topicsPath, JSON.stringify(topics, null, 2));
+    return { success: true };
+  } catch (error) {
+    console.error('Error saving topics:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 function createWindow() {
   const isDev = !app.isPackaged;
 

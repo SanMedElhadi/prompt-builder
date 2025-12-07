@@ -1,6 +1,6 @@
 import RagEngine from '../utils/RagEngine';
 
-const PreviewPane = ({ prompt, variables, role, goal, topics, knowledge, examples, reasoning, ragSettings }) => {
+const PreviewPane = ({ prompt, variables, role, goal, topics, knowledge, examples, reasoning, outputFormat, ragSettings }) => {
     const getPreviewText = () => {
         let preview = '';
 
@@ -8,7 +8,29 @@ const PreviewPane = ({ prompt, variables, role, goal, topics, knowledge, example
         if (goal) preview += `Goal:\n${goal}\n\n`;
 
         if (topics && topics.length > 0) {
-            preview += `Topics:\n${topics.map(t => `- ${t}`).join('\n')}\n\n`;
+            const selectedTopics = topics.filter(t => typeof t === 'string' || t.selected !== false);
+
+            if (selectedTopics.length > 0) {
+                preview += `Topics:\n`;
+                selectedTopics.forEach(t => {
+                    if (typeof t === 'string') {
+                        preview += `- ${t}\n`;
+                    } else {
+                        preview += `\n## Topic: ${t.title}\n`;
+                        if (t.description) preview += `**Description**: ${t.description}\n`;
+                        if (t.scope) preview += `**Scope**: ${t.scope}\n`;
+
+                        if (t.instructions && t.instructions.length > 0) {
+                            preview += `**Instructions**:\n${t.instructions.map(i => `- ${i}`).join('\n')}\n`;
+                        }
+
+                        if (t.actions && t.actions.length > 0) {
+                            preview += `**Actions**:\n${t.actions.map(a => `- ${a}`).join('\n')}\n`;
+                        }
+                    }
+                });
+                preview += `\n`;
+            }
         }
 
         if (knowledge && knowledge.length > 0) {
@@ -68,6 +90,14 @@ const PreviewPane = ({ prompt, variables, role, goal, topics, knowledge, example
                 if (reasoning.strategies.includes('planning_enforcement')) {
                     preview += `- Remember, you are an agent. Keep going until the user's query is completely resolved.\n- Do not stop after completing only part of the request.\n- Only terminate your turn when you are sure that the problem is solved.\n`;
                 }
+            }
+            preview += `\n`;
+        }
+
+        if (outputFormat && outputFormat.type !== 'Free Text') {
+            preview += `Output Format: ${outputFormat.type}\n`;
+            if (outputFormat.customInstruction) {
+                preview += `${outputFormat.customInstruction}\n`;
             }
             preview += `\n`;
         }

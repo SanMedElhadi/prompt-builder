@@ -42,6 +42,24 @@ const DEFAULT_TEMPLATES = [
         role: 'Patient Tutor',
         goal: 'Explain complex concepts in simple, easy-to-understand terms.',
         content: 'Explain the concept of {{concept}} to a {{audience_level}}.\n\nUse analogies and examples to make it clear.\n\nSpecific questions to answer:\n- {{question1}}'
+    },
+    {
+        name: 'Presentation Builder',
+        role: 'Presentation Expert',
+        goal: 'Create engaging, clear, and visually descriptive slide decks.',
+        content: 'Create a slide deck outline for a presentation about {{topic}}.\n\nAudience: {{audience}}\nDuration: {{duration}}\n\nFor each slide, provide:\n1. Title\n2. Bullet points\n3. Visual description (image suggestion)'
+    },
+    {
+        name: 'Socratic Tutor',
+        role: 'Socratic Tutor',
+        goal: 'Guide the student to the answer through questioning rather than direct explanation.',
+        content: 'I am trying to learn about {{topic}}.\n\nInstead of explaining it to me directly, ask me a series of guiding questions to help me figure it out myself.\n\nStart with a simple question.'
+    },
+    {
+        name: 'Research Assistant',
+        role: 'Academic Researcher',
+        goal: 'Synthesize information from multiple sources into a coherent summary.',
+        content: 'Please research and summarize the key findings on {{research_topic}}.\n\nFocus on:\n- Recent developments\n- Major controversies\n- Consensus views\n\nProvide citations where possible.'
     }
 ];
 
@@ -91,6 +109,27 @@ const TemplateLibrary = ({ currentPrompt, onLoad }) => {
         setName('');
     };
 
+    const loadDefaults = async () => {
+        // Merge defaults, avoiding duplicates by name
+        const existingNames = new Set(templates.map(t => t.name));
+        const newDefaults = DEFAULT_TEMPLATES.filter(t => !existingNames.has(t.name));
+
+        if (newDefaults.length === 0) {
+            alert('All default templates are already loaded.');
+            return;
+        }
+
+        const updated = [...templates, ...newDefaults];
+        setTemplates(updated);
+
+        if (window.electron) {
+            await window.electron.saveTemplates(updated);
+        } else {
+            localStorage.setItem('templates', JSON.stringify(updated));
+        }
+        alert(`Loaded ${newDefaults.length} new default templates.`);
+    };
+
     const loadTemplate = (template) => {
         onLoad(template);
     };
@@ -108,7 +147,10 @@ const TemplateLibrary = ({ currentPrompt, onLoad }) => {
 
     return (
         <div className="template-library" style={{ marginTop: '20px', borderTop: '1px solid var(--border-color)', paddingTop: '20px' }}>
-            <h3>Templates</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                <h3>Templates</h3>
+                <button onClick={loadDefaults} style={{ fontSize: '0.8rem', padding: '4px 8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>Load Defaults</button>
+            </div>
             <div className="save-controls" style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
                 <input
                     value={name}
